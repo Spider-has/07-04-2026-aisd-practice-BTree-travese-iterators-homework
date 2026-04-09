@@ -275,14 +275,14 @@ template <class T, size_t K> struct BTreeIt
 
 template <class T, size_t K> T &value(BTreeIt<T, K> it)
 {
-  return &it.current->val[it.s];
+  return it.current->val[it.s];
 }
 
 template <class T, size_t K> BTree<T, K> *minimum(BTree<T, K> *root)
 {
   if (!root)
   {
-    return {0, root};
+    return root;
   }
   while (root->children[0])
   {
@@ -298,7 +298,7 @@ template <class T, size_t K> BTreeIt<T, K> begin(BTree<T, K> *tree)
 
 template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it)
 {
-  BTree<T, K> next = it.current;
+  BTree<T, K> *next = it.current;
   size_t ind = it.s;
   size_t size = K;
 
@@ -306,21 +306,18 @@ template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it)
   {
     return it;
   }
-  if (ind < size)
+  if (ind < size && next->children[ind + 1])
   {
-    if (next.children[ind + 1])
-    {
-      next = minimum(next.children[ind + 1]);
-      ind = 0;
-    }
-    else
-    {
-      ++ind;
-    }
+    next = minimum<T, K>(next->children[ind + 1]);
+    ind = 0;
+  }
+  else if (ind < size - 1)
+  {
+    ++ind;
   }
   else
   {
-    BTree<T, K> *parent = next.parent;
+    BTree<T, K> *parent = next->parent;
     while (parent)
     {
       if (parent->children[0] != next)
@@ -341,7 +338,7 @@ template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it)
         break;
       }
       next = parent;
-      parent = next.parent;
+      parent = next->parent;
     }
     next = parent;
   }
@@ -357,3 +354,92 @@ template <class T, size_t K> bool hasNext(BTreeIt<T, K> it)
 }
 
 template <class T, size_t K> bool hasPrev(BTreeIt<T, K> it);
+
+int main()
+{
+
+  BTree<int, 3> *root = new BTree<int, 3>{{}, {}, nullptr};
+  root->val[0] = 10;
+  root->val[1] = 20;
+  root->val[2] = 30;
+  root->parent = nullptr;
+
+  BTree<int, 3> *leftChild = new BTree<int, 3>{{}, {}, nullptr};
+  leftChild->val[0] = 4;
+  leftChild->val[1] = 8;
+  leftChild->val[2] = 9;
+  leftChild->parent = root;
+
+  BTree<int, 3> *leftMidChild = new BTree<int, 3>{{}, {}, nullptr};
+  leftMidChild->val[0] = 5;
+  leftMidChild->val[1] = 6;
+  leftMidChild->val[2] = 7;
+  leftMidChild->parent = leftChild;
+
+  leftChild->children[1] = leftMidChild;
+
+  BTree<int, 3> *rootMidChild1 = new BTree<int, 3>{{}, {}, nullptr};
+  rootMidChild1->val[0] = 12;
+  rootMidChild1->val[1] = 15;
+  rootMidChild1->val[2] = 17;
+  rootMidChild1->parent = root;
+
+  BTree<int, 3> *rootMidChild2 = new BTree<int, 3>{{}, {}, nullptr};
+  rootMidChild2->val[0] = 22;
+  rootMidChild2->val[1] = 23;
+  rootMidChild2->val[2] = 25;
+  rootMidChild2->parent = root;
+
+  BTree<int, 3> *rootRightChild = new BTree<int, 3>{{}, {}, nullptr};
+  rootRightChild->val[0] = 35;
+  rootRightChild->val[1] = 40;
+  rootRightChild->val[2] = 43;
+  rootRightChild->parent = root;
+
+  BTree<int, 3> *RightLeftChild = new BTree<int, 3>{{}, {}, nullptr};
+  RightLeftChild->val[0] = 36;
+  RightLeftChild->val[1] = 37;
+  RightLeftChild->val[2] = 38;
+  RightLeftChild->parent = rootRightChild;
+
+  rootRightChild->children[1] = RightLeftChild;
+
+  BTree<int, 3> *RightRightChild = new BTree<int, 3>{{}, {}, nullptr};
+  RightRightChild->val[0] = 90;
+  RightRightChild->val[1] = 95;
+  RightRightChild->val[2] = 97;
+  RightRightChild->parent = rootRightChild;
+
+  rootRightChild->children[3] = RightRightChild;
+
+  root->children[0] = leftChild;
+  root->children[1] = rootMidChild1;
+  root->children[2] = rootMidChild2;
+  root->children[3] = rootRightChild;
+
+  auto it = begin(root);
+  std::cout << "--- Тест последовательного обхода ---\n";
+
+  while (hasNext(it))
+  {
+    std::cout << value(it) << " ";
+    it = next(it);
+  }
+
+  std::cout << value(it);
+
+  std::cout << "\n--- Тест завершен ---\n";
+
+  delete leftChild;
+  delete leftMidChild;
+  delete rootMidChild1;
+
+  delete rootMidChild2;
+  delete rootRightChild;
+  delete RightLeftChild;
+
+  delete RightRightChild;
+  delete root;
+
+  return 0;
+}

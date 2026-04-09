@@ -273,8 +273,87 @@ template <class T, size_t K> struct BTreeIt
   BTree<T, K> *current;
 };
 
-template <class T, size_t K> T &value(BTreeIt<T, K> it);
-template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it);
-template <class T, size_t K> BTreeIt<T, K> prev(BTreeIt<T, K> it);
-template <class T, size_t K> bool hasNext(BTreeIt<T, K> it);
+template <class T, size_t K> T &value(BTreeIt<T, K> it)
+{
+  return &it.current->val[it.s];
+}
+
+template <class T, size_t K> BTree<T, K> *minimum(BTree<T, K> *root)
+{
+  if (!root)
+  {
+    return {0, root};
+  }
+  while (root->children[0])
+  {
+    root = root->children[0];
+  }
+  return root;
+}
+
+template <class T, size_t K> BTreeIt<T, K> begin(BTree<T, K> *tree)
+{
+  return {0, minimum(tree)};
+}
+
+template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it)
+{
+  BTree<T, K> next = it.current;
+  size_t ind = it.s;
+  size_t size = K;
+
+  if (!next)
+  {
+    return it;
+  }
+  if (ind < size)
+  {
+    if (next.children[ind + 1])
+    {
+      next = minimum(next.children[ind + 1]);
+      ind = 0;
+    }
+    else
+    {
+      ++ind;
+    }
+  }
+  else
+  {
+    BTree<T, K> *parent = next.parent;
+    while (parent)
+    {
+      if (parent->children[0] != next)
+      {
+        size_t i = 1;
+        for (; i < size && parent->children[i] != next; ++i)
+        {
+        }
+        if (i < size)
+        {
+          ind = i;
+          break;
+        }
+      }
+      else
+      {
+        ind = 0;
+        break;
+      }
+      next = parent;
+      parent = next.parent;
+    }
+    next = parent;
+  }
+  return {ind, next};
+}
+
+template <class T, size_t K> BTreeIt<T, K> prev(BTreeIt<T, K> it)
+{
+}
+template <class T, size_t K> bool hasNext(BTreeIt<T, K> it)
+{
+  return next(it).current;
+}
+
 template <class T, size_t K> bool hasPrev(BTreeIt<T, K> it);

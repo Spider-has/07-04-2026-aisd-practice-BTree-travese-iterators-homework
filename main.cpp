@@ -95,6 +95,19 @@ template <class T, size_t K> bool hasNext(BTreeIt<T, K> it)
 
 template <class T, size_t K> bool hasPrev(BTreeIt<T, K> it);
 
+template <class T, size_t K> void clear(BTree<T, K> *root)
+{
+  if (!root)
+  {
+    return;
+  }
+  for (size_t i = 0; i < K + 1; ++i)
+  {
+    clear(root->children[i]);
+  }
+  delete root;
+}
+
 int main()
 {
 
@@ -158,7 +171,7 @@ int main()
   root->children[3] = rootRightChild;
 
   auto it = begin(root);
-  std::cout << "--- Тест последовательного обхода ---\n";
+  std::cout << "--- Тест последовательного обхода 4-дерева ---\n";
 
   while (hasNext(it))
   {
@@ -170,16 +183,98 @@ int main()
 
   std::cout << "\n--- Тест завершен ---\n";
 
-  delete leftChild;
-  delete leftMidChild;
-  delete rootMidChild1;
+  clear<int, 3>(root);
 
-  delete rootMidChild2;
-  delete rootRightChild;
-  delete RightLeftChild;
+  BTree<int, 1> *root2 = new BTree<int, 1>{{}, {}, nullptr};
+  root2->val[0] = 10;
+  root2->parent = nullptr;
 
-  delete RightRightChild;
-  delete root;
+  BTree<int, 1> *leftChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  leftChild2->val[0] = 5;
+  leftChild2->parent = root2;
+
+  root2->children[0] = leftChild2;
+
+  BTree<int, 1> *leftleftChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  leftleftChild2->val[0] = 3;
+  leftleftChild2->parent = leftChild2;
+
+  leftChild2->children[0] = leftleftChild2;
+
+  BTree<int, 1> *leftleftleftChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  leftleftleftChild2->val[0] = 2;
+  leftleftleftChild2->parent = leftleftChild2;
+
+  leftleftChild2->children[0] = leftleftleftChild2;
+
+  BTree<int, 1> *leftleftleftleftChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  leftleftleftleftChild2->val[0] = 1;
+  leftleftleftleftChild2->parent = leftleftleftChild2;
+
+  leftleftleftChild2->children[0] = leftleftleftleftChild2;
+
+  BTree<int, 1> *leftleftleftrightChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  leftleftleftrightChild2->val[0] = 4;
+  leftleftleftrightChild2->parent = leftleftChild2;
+
+  leftleftChild2->children[1] = leftleftleftrightChild2;
+
+  BTree<int, 1> *leftrightChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  leftrightChild2->val[0] = 8;
+  leftrightChild2->parent = leftChild2;
+
+  leftChild2->children[1] = leftrightChild2;
+
+  BTree<int, 1> *leftrightleftChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  leftrightleftChild2->val[0] = 6;
+  leftrightleftChild2->parent = leftrightChild2;
+
+  leftrightChild2->children[0] = leftrightleftChild2;
+
+  BTree<int, 1> *leftrightleftrightChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  leftrightleftrightChild2->val[0] = 7;
+  leftrightleftrightChild2->parent = leftrightleftChild2;
+
+  leftrightleftChild2->children[1] = leftrightleftrightChild2;
+
+  BTree<int, 1> *leftrightrightChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  leftrightrightChild2->val[0] = 9;
+  leftrightrightChild2->parent = leftrightChild2;
+
+  leftrightChild2->children[1] = leftrightrightChild2;
+
+  BTree<int, 1> *rightChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  rightChild2->val[0] = 15;
+  rightChild2->parent = root2;
+
+  root2->children[1] = rightChild2;
+
+  BTree<int, 1> *rightrightChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  rightrightChild2->val[0] = 18;
+  rightrightChild2->parent = rightChild2;
+
+  rightChild2->children[1] = rightrightChild2;
+
+  BTree<int, 1> *rightrightleftChild2 = new BTree<int, 1>{{}, {}, nullptr};
+  rightrightleftChild2->val[0] = 17;
+  rightrightleftChild2->parent = rightrightChild2;
+
+  rightrightChild2->children[0] = rightrightleftChild2;
+
+  auto it2 = begin(root2);
+  std::cout << "--- Тест последовательного обхода 2-дерева ---\n";
+
+  while (hasNext(it2))
+  {
+    std::cout << value(it2) << " ";
+    it2 = next(it2);
+  }
+
+  std::cout << value(it2);
+
+  std::cout << "\n--- Тест завершен ---\n";
+
+  clear<int, 1>(root2);
 
   return 0;
 }

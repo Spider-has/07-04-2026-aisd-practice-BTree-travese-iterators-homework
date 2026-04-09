@@ -100,17 +100,17 @@ template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it)
 
 template <class T, size_t K> BTreeIt<T, K> prev(BTreeIt<T, K> it)
 {
-  BTree<T, K> *next = it.current;
+  BTree<T, K> *prev = it.current;
   size_t ind = it.s;
   size_t size = K;
 
-  if (!next)
+  if (!prev)
   {
     return it;
   }
-  if (next->children[ind])
+  if (prev->children[ind])
   {
-    next = maximum<T, K>(next->children[ind]);
+    prev = maximum<T, K>(prev->children[ind]);
     ind = size - 1;
   }
   else if (ind > 0)
@@ -119,13 +119,13 @@ template <class T, size_t K> BTreeIt<T, K> prev(BTreeIt<T, K> it)
   }
   else
   {
-    BTree<T, K> *parent = next->parent;
+    BTree<T, K> *parent = prev->parent;
     while (parent)
     {
-      if (parent->children[0] != next)
+      if (parent->children[0] != prev)
       {
         size_t i = size;
-        for (; i > 0 && parent->children[i] != next; --i)
+        for (; i > 0 && parent->children[i] != prev; --i)
         {
         }
         if (i > 0)
@@ -134,12 +134,12 @@ template <class T, size_t K> BTreeIt<T, K> prev(BTreeIt<T, K> it)
           break;
         }
       }
-      next = parent;
-      parent = next->parent;
+      prev = parent;
+      parent = prev->parent;
     }
-    next = parent;
+    prev = parent;
   }
-  return {ind, next};
+  return {ind, prev};
 }
 template <class T, size_t K> bool hasNext(BTreeIt<T, K> it)
 {

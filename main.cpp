@@ -78,9 +78,9 @@ template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it)
     BTree<T, K> *parent = next->parent;
     while (parent)
     {
-      if (parent->children[0] != next)
+      if (parent->children[size] != next)
       {
-        size_t i = 1;
+        size_t i = 0;
         for (; i < size && parent->children[i] != next; ++i)
         {
         }
@@ -89,11 +89,6 @@ template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it)
           ind = i;
           break;
         }
-      }
-      else
-      {
-        ind = 0;
-        break;
       }
       next = parent;
       parent = next->parent;
@@ -127,9 +122,9 @@ template <class T, size_t K> BTreeIt<T, K> prev(BTreeIt<T, K> it)
     BTree<T, K> *parent = next->parent;
     while (parent)
     {
-      if (parent->children[size] != next)
+      if (parent->children[0] != next)
       {
-        size_t i = size - 1;
+        size_t i = size;
         for (; i > 0 && parent->children[i] != next; --i)
         {
         }
@@ -138,11 +133,6 @@ template <class T, size_t K> BTreeIt<T, K> prev(BTreeIt<T, K> it)
           ind = i - 1;
           break;
         }
-      }
-      else
-      {
-        ind = size - 1;
-        break;
       }
       next = parent;
       parent = next->parent;

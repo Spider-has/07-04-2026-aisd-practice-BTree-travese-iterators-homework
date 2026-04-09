@@ -31,9 +31,27 @@ template <class T, size_t K> BTree<T, K> *minimum(BTree<T, K> *root)
   return root;
 }
 
+template <class T, size_t K> BTree<T, K> *maximum(BTree<T, K> *root)
+{
+  if (!root)
+  {
+    return root;
+  }
+  while (root->children[K])
+  {
+    root = root->children[K];
+  }
+  return root;
+}
+
 template <class T, size_t K> BTreeIt<T, K> begin(BTree<T, K> *tree)
 {
   return {0, minimum(tree)};
+}
+
+template <class T, size_t K> BTreeIt<T, K> rbegin(BTree<T, K> *tree)
+{
+  return {K - 1, maximum(tree)};
 }
 
 template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it)
@@ -87,13 +105,61 @@ template <class T, size_t K> BTreeIt<T, K> next(BTreeIt<T, K> it)
 
 template <class T, size_t K> BTreeIt<T, K> prev(BTreeIt<T, K> it)
 {
+  BTree<T, K> *next = it.current;
+  size_t ind = it.s;
+  size_t size = K;
+
+  if (!next)
+  {
+    return it;
+  }
+  if (next->children[ind])
+  {
+    next = maximum<T, K>(next->children[ind]);
+    ind = size - 1;
+  }
+  else if (ind > 0)
+  {
+    --ind;
+  }
+  else
+  {
+    BTree<T, K> *parent = next->parent;
+    while (parent)
+    {
+      if (parent->children[size] != next)
+      {
+        size_t i = size - 1;
+        for (; i > 0 && parent->children[i] != next; --i)
+        {
+        }
+        if (i > 0)
+        {
+          ind = i - 1;
+          break;
+        }
+      }
+      else
+      {
+        ind = size - 1;
+        break;
+      }
+      next = parent;
+      parent = next->parent;
+    }
+    next = parent;
+  }
+  return {ind, next};
 }
 template <class T, size_t K> bool hasNext(BTreeIt<T, K> it)
 {
-  return next(it).current;
+  return next(it).current; // Сделал по аналогии с классной работой
 }
 
-template <class T, size_t K> bool hasPrev(BTreeIt<T, K> it);
+template <class T, size_t K> bool hasPrev(BTreeIt<T, K> it)
+{
+  return prev(it).current; // Сделал по аналогии с классной работой
+}
 
 template <class T, size_t K> void clear(BTree<T, K> *root)
 {
@@ -180,6 +246,19 @@ int main()
   }
 
   std::cout << value(it);
+
+  std::cout << "\n--- Тест завершен ---\n";
+
+  std::cout << "--- Тест обратного обхода 4-дерева ---\n";
+
+  auto r_it = rbegin(root);
+  while (hasPrev(r_it))
+  {
+    std::cout << value(r_it) << " ";
+    r_it = prev(r_it);
+  }
+
+  std::cout << value(r_it);
 
   std::cout << "\n--- Тест завершен ---\n";
 
@@ -271,6 +350,19 @@ int main()
   }
 
   std::cout << value(it2);
+
+  std::cout << "\n--- Тест завершен ---\n";
+
+  std::cout << "--- Тест обратного обхода 2-дерева ---\n";
+
+  auto r_it2 = rbegin(root2);
+  while (hasPrev(r_it2))
+  {
+    std::cout << value(r_it2) << " ";
+    r_it2 = prev(r_it2);
+  }
+
+  std::cout << value(r_it2);
 
   std::cout << "\n--- Тест завершен ---\n";
 
